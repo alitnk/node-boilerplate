@@ -1,3 +1,5 @@
+Stack: Express - Apollo server - Prisma - Typegraphql
+
 ```
 npm install
 
