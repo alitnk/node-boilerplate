@@ -1,9 +1,8 @@
 import "reflect-metadata";
 import { ApolloServer } from "apollo-server-express";
 import express from "express";
-import { resolvers } from "@generated/type-graphql";
-import { buildSchema } from "type-graphql";
 import { PrismaClient } from "@prisma/client";
+import { generateSchema } from "./schema";
 
 // vvv Uses the v2 apollo playground
 const {
@@ -14,13 +13,11 @@ async function main() {
   // Prisma
   const prisma = new PrismaClient();
 
-  const schema = await buildSchema({ resolvers });
-
   const context = { prisma };
 
   // Express / Apollo
   const server = new ApolloServer({
-    schema,
+    schema: await generateSchema(), // Typegraphql
     context,
     plugins: [ApolloServerPluginLandingPageGraphQLPlayground({})],
   });
