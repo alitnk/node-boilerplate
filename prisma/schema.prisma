@@ -1,0 +1,59 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator typegraphql {
+  provider = "typegraphql-prisma"
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  title     String   @db.VarChar(255)
+  content   String?
+  published Boolean  @default(false)
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  Int
+}
+
+model Profile {
+  id     Int     @id @default(autoincrement())
+  bio    String?
+  user   User    @relation(fields: [userId], references: [id])
+  userId Int     @unique
+}
+
+model User {
+  id        Int                @id @default(autoincrement())
+  email     String             @unique
+  name      String?
+  posts     Post[]
+  profile   Profile?
+  campaign  Campaign?
+  campaigns CampaignAndUsers[]
+}
+
+model Campaign {
+  id          Int                @id @default(autoincrement())
+  name        String             @db.VarChar(255)
+  description String             @db.Text
+  user        User               @relation(fields: [userId], references: [id])
+  userId      Int                @unique
+  users       CampaignAndUsers[]
+}
+
+model CampaignAndUsers {
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  campaignId  Int
+  campaign    Campaign @relation(fields: [campaignId], references: [id])
+  permissions String[]
+
+  @@id([campaignId, userId])
+}
